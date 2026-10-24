@@ -1,0 +1,10 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Disallow unauthenticated direct client-side reads/writes from the browser.
+    // All read/write traffic is securely authorized through the FastAPI Admin SDK.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

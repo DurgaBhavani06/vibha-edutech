@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: vibha-prod-db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-vibha_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-vibha_secure_production_password}
+      POSTGRES_DB: ${POSTGRES_DB:-vibha_db}
+    volumes:
+      - vibha_postgres_data:/var/lib/postgresql/data
+      - ./backend/backups:/backups
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-vibha_user} -d ${POSTGRES_DB:-vibha_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: vibha-prod-backend
+    restart: always
+    environment:
+      - ENVIRONMENT=production
+      - DEBUG=false
+      - SECRET_KEY=${SECRET_KEY}
+      - DATABASE_URL=postgresql+psycopg2://${POSTGRES_USER:-vibha_user}:${POSTGRES_PASSWORD:-vibha_secure_production_password}@db:5432/${POSTGRES_DB:-vibha_db}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost,https://vibha.io}
+      - RATE_LIMIT_ENABLED=true
+      - SECURITY_HEADERS_ENABLED=true
+      - MASKED_LOGGING_ENABLED=true
+      - AI_ENABLED=${AI_ENABLED:-true}
+      - AI_PROVIDER=${AI_PROVIDER:-mock}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - AI_DAILY_TOKEN_QUOTA_PER_USER=50000
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend/uploads:/app/uploads
+      - ./backend/backups:/app/backups
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: vibha-prod-frontend
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=/api/v1
+    depends_on:
+      - backend
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  proxy:
+    image: nginx:alpine
+    container_name: vibha-prod-proxy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend
+      - frontend
+
+volumes:
+  vibha_postgres_data:
+    name: vibha_postgres_data

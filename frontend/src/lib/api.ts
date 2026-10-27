@@ -7,7 +7,7 @@ import {
 } from '@/types';
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+  process.env.NEXT_PUBLIC_API_URL || 'https://vibha-edutech.onrender.com/api/v1';
 
 // Verified sample course fallback data ensures SSR and static builds succeed reliably
 export const FALLBACK_COURSES: CourseDetail[] = [

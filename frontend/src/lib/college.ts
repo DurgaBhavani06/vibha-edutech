@@ -10,7 +10,7 @@ import { Organization } from '@/types';
 import { getStoredToken } from './auth';
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+  process.env.NEXT_PUBLIC_API_URL || 'https://vibha-edutech.onrender.com/api/v1';
 
 function getAuthHeader(token?: string): Record<string, string> {
   const activeToken = token || getStoredToken();

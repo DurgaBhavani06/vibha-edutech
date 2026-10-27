@@ -3,7 +3,15 @@ const nextConfig = {
   reactStrictMode: true,
   output: 'standalone',
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1',
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'https://vibha-edutech.onrender.com/api/v1',
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/api/v1/:path*',
+        destination: 'https://vibha-edutech.onrender.com/api/v1/:path*',
+      },
+    ];
   },
 };
 

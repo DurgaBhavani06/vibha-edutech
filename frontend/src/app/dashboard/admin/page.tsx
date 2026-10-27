@@ -28,7 +28,8 @@ export default function AdminDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [actionLoadingId, setActionLoadingId] = useState<number | null>(null);
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+  const API_URL =
+    process.env.NEXT_PUBLIC_API_URL || 'https://vibha-edutech.onrender.com/api/v1';
 
   const fetchData = async () => {
     if (!token) return;

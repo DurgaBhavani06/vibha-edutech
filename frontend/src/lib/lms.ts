@@ -7,7 +7,7 @@ import {
 import { getStoredToken } from './auth';
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+  process.env.NEXT_PUBLIC_API_URL || 'https://vibha-edutech.onrender.com/api/v1';
 
 export async function fetchMyEnrollments(token?: string): Promise<EnrollmentResponse[]> {
   const activeToken = token || getStoredToken();

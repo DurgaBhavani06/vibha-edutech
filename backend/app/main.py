@@ -24,14 +24,17 @@ async def lifespan(app: FastAPI):
     if settings.FIREBASE_ENABLED:
         init_firestore()
 
-    # Startup: Ensure tables exist
-    Base.metadata.create_all(bind=engine)
-    # Seed courses and normalized modules/lessons
-    db = SessionLocal()
+    # Startup: Ensure tables exist and seed courses safely
     try:
-        seed_courses_and_curriculum(db)
-    finally:
-        db.close()
+        Base.metadata.create_all(bind=engine)
+        db = SessionLocal()
+        try:
+            seed_courses_and_curriculum(db)
+        finally:
+            db.close()
+    except Exception as exc:
+        import logging
+        logging.getLogger("vibha.startup").warning(f"Database table initialization warning: {exc}")
     yield
     # Shutdown logic if any
 

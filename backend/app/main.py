@@ -58,9 +58,14 @@ if settings.RATE_LIMIT_ENABLED:
     app.add_middleware(RateLimitMiddleware)
 
 # 3. CORS Configuration
+cors_origins = settings.CORS_ORIGINS if isinstance(settings.CORS_ORIGINS, list) else [settings.CORS_ORIGINS]
+# Filter out wildcard when allow_credentials=True to satisfy browser security
+cors_origins = [o for o in cors_origins if o != "*"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=cors_origins,
+    allow_origin_regex=r"https://.*\.vercel\.app|https://.*\.onrender\.com|http://localhost:.*|http://127\.0\.0\.1:.*",
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["*"],

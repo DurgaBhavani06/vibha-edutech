@@ -26,13 +26,26 @@ export async function loginUser(
   email: string,
   password: string
 ): Promise<{ tokens: AuthTokens; user: User }> {
-  const res = await fetch(`${API_BASE_URL}/auth/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password }),
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE_URL}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+  } catch (err: any) {
+    throw new Error(
+      `Cannot connect to backend (${API_BASE_URL}). If using Vercel, check NEXT_PUBLIC_API_URL and ensure your backend server on Render is awake.`
+    );
+  }
 
-  const data = await res.json();
+  let data: any;
+  try {
+    data = await res.json();
+  } catch {
+    throw new Error(`Server returned unexpected response (${res.status} ${res.statusText}).`);
+  }
+
   if (!res.ok) {
     throw new Error(data.detail || 'Login failed. Please verify credentials.');
   }
@@ -52,13 +65,26 @@ export async function registerUser(payload: {
   role?: UserRole;
   organization_code?: string;
 }): Promise<User> {
-  const res = await fetch(`${API_BASE_URL}/auth/register`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE_URL}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+  } catch (err: any) {
+    throw new Error(
+      `Cannot connect to backend (${API_BASE_URL}). If using Vercel, check NEXT_PUBLIC_API_URL and ensure your backend server on Render is awake.`
+    );
+  }
 
-  const data = await res.json();
+  let data: any;
+  try {
+    data = await res.json();
+  } catch {
+    throw new Error(`Server returned unexpected response (${res.status} ${res.statusText}).`);
+  }
+
   if (!res.ok) {
     let errorMsg = 'Registration failed.';
     if (data.detail) {
